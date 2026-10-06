@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh root@192.168.200.121 *)",
+      "Bash(ssh 192.168.200.121 *)",
+      "Bash(ssh -o * root@192.168.200.121 *)",
+      "Bash(scp *)",
+      "Bash(rsync *)",
+      "Bash(docker *)",
+      "Bash(docker compose *)",
+      "Bash(docker-compose *)",
+      "Bash(make *)",
+      "Bash(rm -rf /tmp/*)",
+      "Bash(chmod *)",
+      "Bash(chown *)",
+      "Read(//l/arch01/Devs.me/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf /vol2/1000/d2-docker/ccurr/cc-py/*)",
+      "Bash(rm -rf /vol2/1000/d2-docker/ccurr/cc-py/**)"
+    ],
+    "additionalDirectories": [
+      "L:\\arch01\\Devs.me",
+      "L:\\arch01\\Devs.me\\My.Python-ccurr"
+    ]
+  }
+}
