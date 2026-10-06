@@ -1,0 +1,89 @@
+schema_inventory_version: "1.0"
+source: "CREATE TABLE occurrences across BLUEPRINT*.md"
+unique_counts:
+  clickhouse: 3
+  mariadb: 20
+  total_unique: 23
+  total_create_table_occurrences: 24
+tables:
+  clickhouse:
+    - name: ccurr.pricesall
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L14
+      owner: dbwriter
+    - name: ccurr.symbol_metadata
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L75
+      owner: dbwriter
+    - name: ccurr.kline_gaps
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L96
+      owner: dbwriter
+  mariadb:
+    - name: symbols
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L120
+      owner: dbwriter
+    - name: symbols_blacklist
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L139
+      owner: dbwriter
+    - name: order_log
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L158
+      owner: dbwriter
+    - name: trades
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L182
+      owner: dbwriter
+    - name: strategies
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L201
+      owner: dbwriter
+    - name: strategy_perf
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L217
+      owner: dbwriter
+    - name: override_config
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L234
+      owner: dbwriter
+    - name: emergency_log
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L253
+      owner: dbwriter
+    - name: risk_config
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L277
+      owner: dbwriter
+    - name: risk_history
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L292
+      owner: dbwriter
+    - name: telegram_users
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L309
+      owner: dbwriter
+    - name: telegram_log
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L319
+      owner: dbwriter
+    - name: strategy_run_log
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L337
+      owner: dbwriter
+    - name: strategy_step_log
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L357
+      owner: dbwriter
+    - name: strategy_error_log
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L368
+      owner: dbwriter
+    - name: strategy_candidates
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L387
+      owner: dbwriter
+    - name: backtest_results
+      source: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L414
+      owner: dbwriter
+    - name: audit_log
+      source: BLUEPRINT-PART01-Chapter00-02-SystemOverview.md#L426
+      owner: dbwriter
+    - name: runtime_config
+      source: BLUEPRINT-PART01-Chapter00-02-SystemOverview.md#L493
+      owner: dbwriter
+    - name: runtime_config_history
+      source: BLUEPRINT-PART01-Chapter00-02-SystemOverview.md#L509
+      owner: dbwriter
+duplicates:
+  - name: backtest_results
+    canonical: BLUEPRINT-PART02-Chapter03-04-DataLayer.md#L414
+    duplicate: BLUEPRINT-PART05-Chapter09-10-StrategyPluginInterface.md#L2649
+    status: NON_NORMATIVE_REFERENCE_REQUIRED
+    action: "Chapter 9/10 DDL must link to Chapter 3 and must not be migrated independently."
+verification:
+  unique_count_matches_chapter12: true
+  undefined_table_names_found: false
+  raw_occurrence_count_exceeds_unique_count: true

@@ -1,0 +1,28 @@
+# Claude Code local state and credentials
+.claude/settings.local.json
+.claude/settings.local - Copy.json
+.claude/scheduled_tasks.lock
+
+# Python caches and test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Playwright/browser generated artifacts
+.playwright-mcp/
+
+# Environment files and secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+
+# Local outputs
+results/
+backtest-results/
+
+# Legacy automation script with old workspace path
+auto_push.bat

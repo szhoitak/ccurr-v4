@@ -1,0 +1,232 @@
+manifest_schema: "1.0"
+blueprint:
+  id: ccurr
+  name: "CCURR Quantitative Trading System"
+  release: "v4.0"
+  contract_release: "steps-1-7-integrated-v1"
+  status: INTEGRATION
+  effective_at: null
+  source_of_truth: BLUEPRINT-CCURR-MASTER.md
+  note: "INTEGRATION is not permission to generate production code; all required gates must pass first."
+
+authority:
+  precedence:
+    - manifest-release-policy
+    - chapter-09-strategy-plugin
+    - part01-global-rules
+    - part02-06-data-communication-container
+    - chapter-07-business-rules
+    - chapter-08-orchestration
+    - chapter-10-backtest-adapters
+    - chapter-11-generation-guidance
+    - chapter-12-status-and-gates
+  conflict_policy: "Higher authority overrides non-normative summaries. Unresolved conflict is BLOCKED; never choose silently."
+  duplicate_definition_policy: "Only the authority artifact may define a normative contract. Other copies must be reference/example/deprecated and link to the authority."
+
+artifacts:
+  - id: master
+    path: BLUEPRINT-CCURR-MASTER.md
+    role: index-and-system-entrypoint
+    status: INTEGRATION
+  - id: part01
+    path: BLUEPRINT-PART01-Chapter00-02-SystemOverview.md
+    role: global-rules-and-authority
+    status: INTEGRATION
+  - id: part02
+    path: BLUEPRINT-PART02-Chapter03-04-DataLayer.md
+    role: schema-and-redis-registry
+    status: INTEGRATION
+  - id: part03
+    path: BLUEPRINT-PART03-Chapter05-05-CommunicationLayer.md
+    role: routing-and-event-reliability
+    status: INTEGRATION
+  - id: part04
+    path: BLUEPRINT-PART04-Chapter06-06-Container.md
+    role: container-execution-deployment
+    status: INTEGRATION
+  - id: chapter07
+    path: BLUEPRINT-PART05-Chapter07-07-StrategyStep1-9.md
+    role: strategy-business-rules
+    status: INTEGRATION
+  - id: chapter08
+    path: BLUEPRINT-PART05-Chapter08-08-StrategyEngine.md
+    role: engine-orchestration
+    status: INTEGRATION
+  - id: chapter09
+    path: BLUEPRINT-PART05-Chapter09-10-StrategyPluginInterface.md
+    role: normative-plugin-and-model-contract
+    status: INTEGRATION
+  - id: chapter11
+    path: BLUEPRINT-PART06-Chapter11-11-AIGenerationOrder.md
+    role: generation-order-and-prompts
+    status: INTEGRATION
+  - id: chapter12
+    path: BLUEPRINT-PART06-Chapter12-12-TodoAndOpenIssues.md
+    role: status-and-acceptance-gates
+    status: INTEGRATION
+  - id: template
+    path: BLUEPRINT-TEMPLATE.md
+    role: non-authoritative-template
+    status: DEPRECATED
+
+schema_inventory:
+  path: BLUEPRINT-SCHEMA-INVENTORY.yaml
+  unique_counts: "ClickHouse 3, MariaDB 20, total 23"
+  duplicate_ddl: "backtest_results in Chapter 9/10 is non-normative; Chapter 3 is canonical"
+
+contracts:
+  - id: C01-strategy-plugin
+    authority: BLUEPRINT-PART05-Chapter09-10-StrategyPluginInterface.md
+    sections: [9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 10]
+    consumers: [chapter07, chapter08, chapter11]
+  - id: C02-time-numeric
+    authority: BLUEPRINT-PART01-Chapter00-02-SystemOverview.md
+    sections: [1.1, 1.4]
+    secondary: BLUEPRINT-PART05-Chapter09-10-StrategyPluginInterface.md
+    consumers: [part02, chapter07, chapter08, chapter09, chapter11]
+  - id: C03-order-intent
+    authority: BLUEPRINT-PART05-Chapter09-10-StrategyPluginInterface.md
+    sections: [9.4.3]
+    execution: BLUEPRINT-PART04-Chapter06-06-Container.md
+    consumers: [chapter07, chapter11]
+  - id: C04-candidate-lifecycle
+    authority: BLUEPRINT-PART05-Chapter07-07-StrategyStep1-9.md
+    sections: [7.7, 7.7.4, 7.7.6]
+    model: BLUEPRINT-PART05-Chapter09-10-StrategyPluginInterface.md
+    status_gate: BLUEPRINT-PART06-Chapter12-12-TodoAndOpenIssues.md
+  - id: C05-risk-sizing
+    authority: BLUEPRINT-PART04-Chapter06-06-Container.md
+    sections: [6.6.5]
+    model: BLUEPRINT-PART05-Chapter09-10-StrategyPluginInterface.md
+    status_gate: BLUEPRINT-PART06-Chapter12-12-TodoAndOpenIssues.md
+  - id: C06-data-communication
+    authority: BLUEPRINT-PART01-Chapter00-02-SystemOverview.md
+    sections: [1.6]
+    detail: [BLUEPRINT-PART02-Chapter03-04-DataLayer.md, BLUEPRINT-PART03-Chapter05-05-CommunicationLayer.md, BLUEPRINT-PART04-Chapter06-06-Container.md]
+  - id: C07-deployment-recovery
+    authority: BLUEPRINT-PART04-Chapter06-06-Container.md
+    sections: [6.14.3, 6.15.7]
+    generation: BLUEPRINT-PART06-Chapter11-11-AIGenerationOrder.md
+    status_gate: BLUEPRINT-PART06-Chapter12-12-TodoAndOpenIssues.md
+
+invariants:
+  - id: I01
+    statement: "Strategy and Step time comes only from injected Clock/StrategyContext."
+  - id: I02
+    statement: "Domain/API/Redis/event timestamps are UTC epoch-ms integers."
+  - id: I03
+    statement: "Canonical strategy numeric models use Decimal, not float."
+  - id: I04
+    statement: "Live and backtest use the same strategy constructor and lifecycle."
+  - id: I05
+    statement: "Order Intent is Spot-only; reduceOnly is forbidden."
+  - id: I06
+    statement: "Retries reuse the same clientOrderId."
+  - id: I07
+    statement: "Pending OCO state is retained until successful placement."
+  - id: I08
+    statement: "MariaDB owns Candidate terminal truth; Redis TTL is not terminal."
+  - id: I09
+    statement: "Risk order is R17 -> R06 -> R12 -> R14 -> R13."
+  - id: I10
+    statement: "Private/trading Binance APIs route only through ccurr-trader."
+  - id: I11
+    statement: "Database writes route only through ccurr-dbwriter, except documented offline output."
+  - id: I12
+    statement: "Each Redis canonical key has one primary writer; position write-through is explicit."
+  - id: I13
+    statement: "Reliable events are state/DB-backed, not Pub/Sub-only."
+  - id: I14
+    statement: "OPEN readiness is denied until reconciliation and account.synced/order recovery complete."
+  - id: I15
+    statement: "Backtest has no live sockets, macvlan, Binance secrets, Redis, or dbwriter queue."
+
+gate_status:
+  - id: G0
+    status: VERIFIED
+    evidence: BLUEPRINT-SCHEMA-INVENTORY.yaml and artifact inventory
+  - id: G1
+    status: VERIFIED
+    evidence: "Chapter 9 is canonical; Chapter 10 illustrative MockBroker uses public pending-OCO methods and retains private state as implementation detail."
+  - id: G2
+    status: VERIFIED
+    evidence: "BLUEPRINT-G2-SEMANTIC-REVIEW.md: I12/I14/I15 ownership, readiness, and backtest boundaries resolved at documentation scope; runtime evidence remains G3/G4 scope."
+  - id: G3
+    status: PENDING
+    evidence: "G3-EVIDENCE-LOCAL.md and G3-EVIDENCE-CONSISTENCY-AUDIT.md: latest local-only run 64 passed; partial evidence only, canonical NOT_PROVEN gaps remain."
+  - id: G4
+    status: PENDING
+    evidence: "G4-EVIDENCE-STATIC-LOCAL.md: static/local routing and isolation evidence only; no operational runtime verification."
+  - id: G5
+    status: VERIFIED
+    evidence: "No active normative conflict identified in the documented classification; legacy blueprint-v4-01.md is excluded from the formal inventory."
+  - id: G6
+    status: NOT_STARTED
+    evidence: "Requires explicit approval after G0-G5"
+
+acceptance_gates:
+  - id: G0
+    name: inventory-completeness
+    required: true
+    evidence: artifact inventory and resolvable references
+  - id: G1
+    name: authority-uniqueness
+    required: true
+    evidence: normative model/constructor/contract search
+  - id: G2
+    name: cross-contract-semantics
+    required: true
+    evidence: invariant-by-invariant review
+  - id: G3
+    name: contract-and-parity-evidence
+    required: true
+    evidence: model, clock, risk, race, recovery, live/backtest tests
+  - id: G4
+    name: operational-safety
+    required: true
+    evidence: routing, DB boundary, readiness, persistence, isolation review
+  - id: G5
+    name: no-normative-conflict
+    required: true
+    evidence: blocker searches (stop buffer, schema count, OTO terminology, floats, direct calls)
+  - id: G6
+    name: release-approval
+    required: true
+    evidence: explicit human approval after G0-G5
+
+verification:
+  forbidden_active_patterns:
+    - "strategy_cls(config, context)"
+    - "direct private Binance client outside ccurr-trader"
+    - "direct DB INSERT/UPDATE/UPSERT outside ccurr-dbwriter"
+    - "canonical strategy float fields"
+    - "MANUAL candidate in pending review ZSET"
+    - "delete pending OCO before successful placement"
+    - "Redis TTL treated as Candidate terminal"
+  searches:
+    - "BaseStrategy|BaseStep|StrategyContext|Candidate|Signal|TradingCandidate|OrderIntent|RiskResult"
+    - "strategy_cls\\(|StrategyContext\\(|time\\.time\\(|now_ms\\(|asyncio\\.sleep"
+    - "float|Decimal|_pct|ratio|list\\[dict\\]|elapsed_min"
+    - "OTO|OTOCO|reduceOnly|clientOrderId|pending_quantity|pending_oco|executed_qty"
+    - "R17|R06|R12|R13|R14|RiskCalculator|MIN_NOTIONAL|INSUFFICIENT_BALANCE"
+    - "dbwriter|ccurr-trader|Pub/Sub|UNKNOWN|reconciliation|readiness"
+    - "22|16|startup|macvlan|secret|volume|backtest"
+  release_blockers:
+    - "Missing executable contract/live-backtest parity evidence; see BLUEPRINT-G3-EVIDENCE-MATRIX.md"
+
+verification_report:
+  path: BLUEPRINT-VERIFICATION-REPORT.md
+  date: 2026-10-04
+  scope: G1-G5 read-only classification
+  runtime_tests_executed: false
+  gate_status_summary: "G0-G2 VERIFIED (documentation scope); G3-G4 PENDING; G5 VERIFIED (documentation scope)"
+
+  decision: NOT_RELEASED
+  reason: "G0-G2 documentation evidence complete; G3 runtime evidence, G4 operational verification, and explicit release approval remain pending."
+  released_at: null
+
+change_log:
+  - revision: steps-1-7-integrated-v1
+    date: 2026-10-04
+    scope: "Integrated strategy, time/numeric, order, candidate, risk, communication, and deployment contracts."
+    migration_required: false
